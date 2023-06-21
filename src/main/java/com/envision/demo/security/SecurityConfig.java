@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,9 +17,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.envision.demo.services.UserDetailsServiceImpl;
 
-import jakarta.servlet.http.HttpServletResponse;
-
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = false, securedEnabled = false, jsr250Enabled = true)
 @Configuration
 public class SecurityConfig {
 	
@@ -27,6 +27,9 @@ public class SecurityConfig {
 	
 	@Autowired
 	JwtTokenFilter jwtTokenFilter;
+	
+	@Autowired
+	JwtAuthEntryPoint jwtAuthEntryPoint;
 	
 	@Bean
 	public UserDetailsService userDetailsService() {
@@ -48,15 +51,7 @@ public class SecurityConfig {
 		http.headers().frameOptions().sameOrigin();
 		http.authenticationProvider(authenticationProvider());
 		
-		http.exceptionHandling()
-        .authenticationEntryPoint(
-            (request, response, ex) -> {
-                response.sendError(
-                    HttpServletResponse.SC_UNAUTHORIZED,
-                    ex.getMessage()
-                );
-            }
-        );
+		http.exceptionHandling().authenticationEntryPoint(jwtAuthEntryPoint);
  
 		http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
 		return http.build();

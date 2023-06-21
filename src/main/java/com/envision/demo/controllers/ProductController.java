@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.envision.demo.constants.UserRoleType;
 import com.envision.demo.dao.Product;
 import com.envision.demo.repository.ProductRepository;
 
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.validation.Valid;
 
 @RestController
@@ -24,6 +26,7 @@ public class ProductController {
 	private ProductRepository repo;
     
     @PostMapping
+    @RolesAllowed(UserRoleType.admin)
     public ResponseEntity<Product> create(@RequestBody @Valid Product product) {
         Product savedProduct = repo.save(product);
         URI productURI = URI.create("/products/" + savedProduct.getId());
@@ -31,6 +34,7 @@ public class ProductController {
     }
      
     @GetMapping
+    @RolesAllowed(UserRoleType.customer)
     public List<Product> list() {
         return repo.findAll();
     }

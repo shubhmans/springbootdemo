@@ -1,20 +1,33 @@
 package com.envision.demo.dao;
 
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
+import lombok.Setter;
 
-@Data
-@AllArgsConstructor
+@Entity
+@Table(name = "roles")
+@Getter
+@Setter
 @NoArgsConstructor
-public class Role implements GrantedAuthority {
+public class Role {
 
-  public static final String USER_ADMIN = "USER_ADMIN";
-  public static final String AUTHOR_ADMIN = "AUTHOR_ADMIN";
-  public static final String BOOK_ADMIN = "BOOK_ADMIN";
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id;
+	
+	private String roleType;
 
-  private String authority;
-
+	public Role(String roleType) {
+		this.roleType = roleType;
+	}
+	
+	@Override
+	public String toString() {
+		return roleType.toString();
+	}
 }
