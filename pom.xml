@@ -15,8 +15,8 @@
 	<name>springbootdemo</name>
 	<description>Demo for all the spring boot features</description>
 	<properties>
-	    <maven.compiler.source>1.18</maven.compiler.source>
-	    <maven.compiler.target>1.18</maven.compiler.target>
+	    <maven.compiler.source>18</maven.compiler.source>
+	    <maven.compiler.target>18</maven.compiler.target>
 	</properties>
 	<dependencies>
 		<dependency>
