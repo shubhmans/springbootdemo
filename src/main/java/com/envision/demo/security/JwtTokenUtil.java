@@ -1,12 +1,10 @@
 package com.envision.demo.security;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -20,8 +18,6 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Component
 public class JwtTokenUtil {
 	
-	private static final Logger LOGGER = LoggerFactory.getLogger(JwtTokenUtil.class);
-	
     private static final long EXPIRE_DURATION = 24 * 60 * 60 * 1000; // 24 hour
      
     @Value("${app.jwt.secret}")
@@ -30,7 +26,7 @@ public class JwtTokenUtil {
     public String generateAccessToken(User user) {
         return Jwts.builder()
                 .setSubject(String.format("%s,%s", user.getId(), user.getUsername()))
-                .setIssuer("CodeJava")
+                .setIssuer("EnvisionTech")
                 .claim("roles", user.getRoles().toString())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRE_DURATION))
@@ -48,10 +44,10 @@ public class JwtTokenUtil {
 		return parseClaims(token).getSubject();
 	}
 
-	public Set<Role> getRoles(String token) {
+	public List<Role> getRoles(String token) {
 		String roles = (String) parseClaims(token).get("roles");
 		String[] roleNames = roles.substring(1, roles.length() - 1).split(",");
-		Set<Role> userRoles = new HashSet<>();
+		List<Role> userRoles = new ArrayList<>();
 		Arrays.stream(roleNames).forEach(role -> userRoles.add(new Role(role)));
 		return userRoles;
 	}

@@ -26,7 +26,7 @@ public class ProductController {
 	private ProductRepository repo;
     
     @PostMapping
-    @RolesAllowed(UserRoleType.admin)
+    @RolesAllowed(UserRoleType.ADMIN)
     public ResponseEntity<Product> create(@RequestBody @Valid Product product) {
         Product savedProduct = repo.save(product);
         URI productURI = URI.create("/products/" + savedProduct.getId());
@@ -34,7 +34,7 @@ public class ProductController {
     }
      
     @GetMapping
-    @RolesAllowed(UserRoleType.customer)
+    @RolesAllowed(UserRoleType.CUSTOMER)
     public List<Product> list() {
         return repo.findAll();
     }

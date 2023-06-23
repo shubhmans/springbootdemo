@@ -29,14 +29,12 @@ import lombok.NoArgsConstructor;
 public class GlobalExceptionHandler {
 
 	private final Logger logger = LogManager.getLogger();
-	
-	@ExceptionHandler(CustomException.class)
-	public ResponseEntity<ApiCallError<String>> handleCustomException(HttpServletRequest request,
-			CustomException ex) {
-		//logger.error("NotFoundException {}\n", request.getRequestURI(), ex);
 
-		return ResponseEntity.status(ex.getHttpStatus())
-				.body(new ApiCallError<>(ex.getErrorCode(), ex.getMessage()));
+	@ExceptionHandler(CustomException.class)
+	public ResponseEntity<ApiCallError<String>> handleCustomException(HttpServletRequest request, CustomException ex) {
+		logger.error("Custom Exception {}\n", request.getRequestURI(), ex);
+
+		return ResponseEntity.status(ex.getHttpStatus()).body(new ApiCallError<>(ex.getErrorCode(), ex.getMessage()));
 	}
 
 	@ExceptionHandler(NotFoundException.class)
@@ -53,7 +51,8 @@ public class GlobalExceptionHandler {
 			ValidationException ex) {
 		logger.error("ValidationException {}\n", request.getRequestURI(), ex);
 
-		return ResponseEntity.badRequest().body(new ApiCallError<>(ErrorCode.VALIDATION_EXCEPTION,  "Validation exception"));
+		return ResponseEntity.badRequest()
+				.body(new ApiCallError<>(ErrorCode.VALIDATION_EXCEPTION, "Validation exception"));
 	}
 
 	@ExceptionHandler(MissingServletRequestParameterException.class)
@@ -91,6 +90,7 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(AccessDeniedException.class)
 	public ResponseEntity<ApiCallError<String>> handleAccessDeniedException(HttpServletRequest request,
 			AccessDeniedException ex) {
+		
 		logger.error("handleAccessDeniedException {}\n", request.getRequestURI(), ex);
 
 		return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -109,7 +109,7 @@ public class GlobalExceptionHandler {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class ApiCallError<T> {
-		
+
 		private ErrorCode errorCode;
 		private String message;
 	}

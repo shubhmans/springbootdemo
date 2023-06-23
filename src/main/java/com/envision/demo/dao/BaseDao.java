@@ -1,9 +1,11 @@
 package com.envision.demo.dao;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
@@ -14,9 +16,12 @@ import lombok.Data;
 public class BaseDao {
 	
 	@Column(updatable = false)
-    @CreationTimestamp
-    private LocalDateTime createdAt;
+	@CreationTimestamp
+    @DateTimeFormat(pattern = "dd-MM-yyyy hh:mm:ss")
+    private Date createdAt;
 	
     @UpdateTimestamp
-    private LocalDateTime updatedAt;
+    @LastModifiedDate
+    @DateTimeFormat(pattern = "dd-MM-yyyy hh:mm:ss")
+    private Date modifiedAt;
 }

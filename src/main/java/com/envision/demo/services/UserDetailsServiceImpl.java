@@ -9,11 +9,11 @@ import org.springframework.stereotype.Service;
 import com.envision.demo.repository.UserRepository;
 
 @Service
-public class UserDetailsServiceImpl implements UserDetailsService{
+public class UserDetailsServiceImpl implements UserDetailsService {
 	
 	@Autowired
 	private UserRepository userRepository;
-
+	
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		return userRepository
@@ -21,5 +21,5 @@ public class UserDetailsServiceImpl implements UserDetailsService{
         .orElseThrow(() ->
                 new UsernameNotFoundException(String.format("User: %s, not found", username)));
 	}
-
+	
 }

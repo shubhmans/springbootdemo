@@ -15,7 +15,8 @@
 	<name>springbootdemo</name>
 	<description>Demo for all the spring boot features</description>
 	<properties>
-		<java.version>11</java.version>
+	    <maven.compiler.source>1.18</maven.compiler.source>
+	    <maven.compiler.target>1.18</maven.compiler.target>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -86,7 +87,18 @@
 			<artifactId>json</artifactId>
 			<version>20230618</version>
 		</dependency>
-
+		
+		<dependency>
+		    <groupId>org.flywaydb</groupId>
+		    <artifactId>flyway-maven-plugin</artifactId>
+		    <version>9.20.0</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.flywaydb</groupId>
+		    <artifactId>flyway-mysql</artifactId>
+		</dependency>
+		
 	</dependencies>
 
 	<build>

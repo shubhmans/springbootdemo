@@ -1,13 +1,11 @@
 package com.envision.demo.security;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.List;
 
-import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,7 +16,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.envision.demo.dao.Role;
 import com.envision.demo.dao.User;
-import com.envision.demo.enums.ErrorCode;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
@@ -31,13 +28,15 @@ import jakarta.servlet.http.HttpServletResponse;
  
 @Component
 public class JwtTokenFilter extends OncePerRequestFilter {
+	
     @Autowired
     private JwtTokenUtil jwtUtil;
- 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+    
+    private static final Logger log = LoggerFactory.getLogger(JwtTokenFilter.class);
+
+	@Override
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+			throws ServletException, IOException {
     	
     	String token = null;
 		try {
@@ -53,29 +52,17 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 			    return;
 			}
 		} catch (ExpiredJwtException ex) {
-			handleJwtTokenError(response, "Auth token expired", ErrorCode.TOKEN_EXPIRED);
-//			throw new CustomException(, ErrorCode.TOKEN_EXPIRED, HttpStatus.UNAUTHORIZED);
+			log.error("Auth token expired ", ex);
 		} catch (IllegalArgumentException ex) {
-//			throw new CustomException("Auth token is null, empty or only whitespace", ErrorCode.TOKEN_INVALID,
-//					HttpStatus.UNAUTHORIZED);
+			log.error("Auth token is null, empty or only whitespace ", ex);
 		} catch (MalformedJwtException ex) {
-//			handleJwtTokenError(response, "Auth is invalid", ErrorCode.TOKEN_INVALID);
-			
-			response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-			response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
-			response.setStatus(HttpStatus.UNAUTHORIZED.value());
-			JSONObject jsonObject = new JSONObject();
-
-			jsonObject.put("error_code", "errorCode");
-			jsonObject.put("message", "message");
-			response.getWriter().print(jsonObject);
+			log.error("Auth token is invalid ", ex);
 		} catch (UnsupportedJwtException ex) {
-//			throw new CustomException("Auth token is not supported", ErrorCode.TOKEN_INVALID, HttpStatus.UNAUTHORIZED);
+			log.error("Auth token is not supported ", ex);
 		} catch (SignatureException ex) {
-//			throw new CustomException("Auth token signature validation failed", ErrorCode.TOKEN_SIGNATURE_INVALID,
-//					HttpStatus.UNAUTHORIZED);
+			log.error("Auth token signature validation failed ", ex);
 		} catch (Exception ex) {
-			handleJwtTokenError(response, "Error validating auth token", ErrorCode.TOKEN_INVALID);
+			log.error("Error validating auth token", ex);
 		}
  
         setAuthenticationContext(token, request);
@@ -92,45 +79,33 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         return header.split(" ")[1].trim();
     }
  
-    private void setAuthenticationContext(String token, HttpServletRequest request) {
-    	if (token == null) {
-    		return;
-    	}
-        UserDetails userDetails = getUserDetails(token);
- 
-        UsernamePasswordAuthenticationToken
-            authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
- 
-        authentication.setDetails(
-                new WebAuthenticationDetailsSource().buildDetails(request));
- 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
+	private void setAuthenticationContext(String token, HttpServletRequest request) {
+		if (token == null) {
+			return;
+		}
+		UserDetails userDetails = getUserDetails(token);
+
+		UsernamePasswordAuthenticationToken authentication = 
+				new UsernamePasswordAuthenticationToken(userDetails, null,
+						userDetails.getAuthorities());
+
+		authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+	}
  
     private UserDetails getUserDetails(String token) {
-        User user = new User();
         String[] jwtSubject = jwtUtil.getSubject(token).split(",");
- 
+        
+        User user = new User();
         user.setId(Integer.parseInt(jwtSubject[0]));
         user.setUsername(jwtSubject[1]);
         
-        
-        Set<Role> roles = jwtUtil.getRoles(token);
+        List<Role> roles = jwtUtil.getRoles(token);
          
         for (Role role : roles) {
             user.addRole(role);
         }
         return user;
     }
-
-	private void handleJwtTokenError(HttpServletResponse response, String message, ErrorCode errorCode) throws IOException {
-		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-		response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
-		response.setStatus(HttpStatus.UNAUTHORIZED.value());
-		JSONObject jsonObject = new JSONObject();
-
-		jsonObject.put("error_code", errorCode);
-		jsonObject.put("message", message);
-		response.getWriter().print(jsonObject);
-	}
 }

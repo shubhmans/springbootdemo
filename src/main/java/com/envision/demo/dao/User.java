@@ -1,18 +1,18 @@
 package com.envision.demo.dao;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,14 +21,18 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
+@Builder
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class User extends BaseDao implements UserDetails {
 
 	private static final long serialVersionUID = 1757106311978436712L;
@@ -36,12 +40,6 @@ public class User extends BaseDao implements UserDetails {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
-
-	@CreatedDate
-	private LocalDateTime createdAt;
-	
-	@LastModifiedDate
-	private LocalDateTime modifiedAt;
 	
 	private String password;
 	
@@ -49,13 +47,14 @@ public class User extends BaseDao implements UserDetails {
 	
 	private String fullName;
 	
-	@ManyToMany
+	@ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(
         name = "users_roles",
         joinColumns = @JoinColumn(name = "user_id"),
         inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-	private Set<Role> roles = new HashSet<>();
+//	@JsonIgnore
+	private List<Role> roles = new ArrayList();
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

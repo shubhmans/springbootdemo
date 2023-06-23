@@ -1,13 +1,13 @@
 package com.envision.demo.security;
 
 import java.io.IOException;
-import java.util.Date;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -19,6 +19,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+/*
+ * Handle all the token related exceptions
+ */
 @Component
 public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
 
@@ -31,11 +34,11 @@ public class JwtAuthEntryPoint implements AuthenticationEntryPoint {
 		logger.error("Unauthorized error. Message - {}", e.getMessage());
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 		response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
-
+		response.setStatus(HttpStatus.UNAUTHORIZED.value());
 		JSONObject jsonObject = new JSONObject();
 		try {
 			jsonObject.put("error_code", ErrorCode.UNAUTHORIZED);
-			jsonObject.put("message", "Access denied");
+			jsonObject.put("message", "Access denied, invalid token!");
 		} catch (JSONException e1) {
 			e1.printStackTrace();
 		}

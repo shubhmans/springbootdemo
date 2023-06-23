@@ -5,13 +5,13 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AuthResponse {
+public class LoginResponse {
     private String email;
     private String accessToken;
  
-    public AuthResponse() { }
+    public LoginResponse() { }
      
-    public AuthResponse(String email, String accessToken) {
+    public LoginResponse(String email, String accessToken) {
         this.email = email;
         this.accessToken = accessToken;
     }
